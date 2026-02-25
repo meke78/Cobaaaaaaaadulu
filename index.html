@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>IX-A Smart Schedule</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800&family=Nunito:wght@400;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="cyber" data-mode="default" data-ff="inter" data-fs="normal">
+    <canvas id="particleCanvas"></canvas>
+    <canvas id="confettiCanvas"></canvas>
+    <div class="orbs"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div></div>
+    <div class="grid-ov" id="gridOv"></div>
+    <div class="scan-ov" id="scanOv"></div>
+    <div class="noise-ov"></div>
+
+    <!-- LOADER -->
+    <div class="loader" id="loader">
+        <div class="ld-bg"></div>
+        <div class="ld-center">
+            <div class="ld-spinner"><div class="ld-ring"></div><div class="ld-ring r2"></div><div class="ld-ring r3"></div></div>
+            <div class="ld-text"><span>I</span><span>X</span><span>-</span><span>A</span></div>
+            <div class="ld-sub">SMART SCHEDULE</div>
+            <div class="ld-bar"><div class="ld-fill" id="ldFill"></div></div>
+            <div class="ld-pct" id="ldPct">Loading...</div>
+        </div>
+    </div>
+
+    <!-- APP -->
+    <div class="app" id="app">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <button class="tb-btn" id="sndBtn" onclick="tgSound()"><i class="fas fa-volume-up" id="sndIco"></i></button>
+            <div class="tb-brand"><div class="tb-logo"><i class="fas fa-graduation-cap"></i></div><span class="tb-name">IX-A</span></div>
+            <button class="tb-btn" onclick="cycleTheme()"><i class="fas fa-palette"></i></button>
+        </header>
+        <div class="scroll-prog" id="scrollProg"></div>
+
+        <!-- HERO -->
+        <section class="hero anim-in">
+            <div class="hero-card" id="heroCard">
+                <div class="hc-deco"></div>
+                <div class="hc-shine"></div>
+                <div class="hc-top">
+                    <div class="badge-live"><div class="bl-pulse"></div><div class="bl-dot"></div>LIVE</div>
+                </div>
+                <div class="clock">
+                    <div class="ck-row">
+                        <div class="ck-box"><span class="ck-d" id="h1">0</span></div>
+                        <div class="ck-box"><span class="ck-d" id="h2">0</span></div>
+                        <div class="ck-sep">:</div>
+                        <div class="ck-box"><span class="ck-d" id="m1">0</span></div>
+                        <div class="ck-box"><span class="ck-d" id="m2">0</span></div>
+                        <div class="ck-s"><span id="sec">00</span></div>
+                    </div>
+                    <div class="ck-date" id="dateStr">Loading...</div>
+                </div>
+                <div id="lessonBox" class="lesson-box idle"><div class="lb-glow"></div><div class="lb-body"><div class="lb-label">Status</div><div class="lb-name">Memuat...</div></div></div>
+            </div>
+        </section>
+
+        <!-- QUICK ACTIONS -->
+        <section class="qactions anim-in">
+            <button class="qa" onclick="openSheet('pomo')"><div class="qa-i" style="--c:#f59e0b"><i class="fas fa-hourglass-half"></i></div><span>Pomodoro</span></button>
+            <button class="qa" onclick="openSheet('pick')"><div class="qa-i" style="--c:#8b5cf6"><i class="fas fa-dice"></i></div><span>Random</span></button>
+            <button class="qa" onclick="openSheet('absen')"><div class="qa-i" style="--c:#10b981"><i class="fas fa-clipboard-check"></i></div><span>Absen</span></button>
+            <button class="qa" onclick="openSheet('birth')"><div class="qa-i" style="--c:#ec4899"><i class="fas fa-birthday-cake"></i></div><span>Birthday</span></button>
+        </section>
+
+        <!-- STATS -->
+        <section class="stats anim-in">
+            <div class="st-card"><div class="st-i"><i class="fas fa-book-open"></i></div><div><div class="st-v" id="stMapel">-</div><div class="st-l">Mapel</div></div></div>
+            <div class="st-card"><div class="st-i g"><i class="fas fa-users"></i></div><div><div class="st-v">36</div><div class="st-l">Siswa</div></div></div>
+        </section>
+
+        <!-- DAY SELECT -->
+        <section class="glass anim-in" id="daySection">
+            <div class="sec-h"><div class="sec-ico"><i class="fas fa-calendar-week"></i></div><div><div class="sec-t">Jadwal Pelajaran</div><div class="sec-s">Pilih hari</div></div></div>
+            <div class="day-grid">
+                <button class="dy" onclick="selDay('senin')" data-d="senin"><span class="dy-n">01</span><span class="dy-name">Senin</span><span class="dy-info" id="dSenin">-</span><div class="dy-arr"><i class="fas fa-arrow-right"></i></div></button>
+                <button class="dy" onclick="selDay('selasa')" data-d="selasa"><span class="dy-n">02</span><span class="dy-name">Selasa</span><span class="dy-info" id="dSelasa">-</span><div class="dy-arr"><i class="fas fa-arrow-right"></i></div></button>
+                <button class="dy" onclick="selDay('rabu')" data-d="rabu"><span class="dy-n">03</span><span class="dy-name">Rabu</span><span class="dy-info" id="dRabu">-</span><div class="dy-arr"><i class="fas fa-arrow-right"></i></div></button>
+                <button class="dy" onclick="selDay('kamis')" data-d="kamis"><span class="dy-n">04</span><span class="dy-name">Kamis</span><span class="dy-info" id="dKamis">-</span><div class="dy-arr"><i class="fas fa-arrow-right"></i></div></button>
+                <button class="dy dy-w" onclick="selDay('jumat')" data-d="jumat"><span class="dy-n">05</span><span class="dy-name">Jumat</span><span class="dy-info" id="dJumat">-</span><div class="dy-arr"><i class="fas fa-arrow-right"></i></div></button>
+            </div>
+        </section>
+
+        <!-- SCHEDULE VIEW -->
+        <section class="glass sched-view" id="schedView">
+            <div class="sv-h"><button class="ib" onclick="backDays()"><i class="fas fa-arrow-left"></i></button><div><h2 class="sv-t" id="svT">Jadwal</h2><p class="sv-s" id="svS"></p></div></div>
+            <div class="timeline" id="tlContent"></div>
+        </section>
+
+        <!-- PIKET -->
+        <section class="glass anim-in" id="piketSec">
+            <div class="sec-h"><div class="sec-ico warn"><i class="fas fa-broom"></i></div><div><div class="sec-t">Jadwal Piket</div><div class="sec-s">Pilih hari</div></div></div>
+            <div class="chips" id="piketChips">
+                <button class="chip" onclick="selPiket('senin')">Senin</button>
+                <button class="chip" onclick="selPiket('selasa')">Selasa</button>
+                <button class="chip" onclick="selPiket('rabu')">Rabu</button>
+                <button class="chip" onclick="selPiket('kamis')">Kamis</button>
+                <button class="chip" onclick="selPiket('jumat')">Jum'at</button>
+            </div>
+            <div id="piketBody" class="piket-body">
+                <div class="ketua-card"><div class="kc-glow"></div><div class="kc-body"><div class="kc-av"><i class="fas fa-crown"></i></div><div><div class="kc-label"><i class="fas fa-star"></i> Ketua</div><div class="kc-name" id="kName">-</div><div class="kc-day" id="kDay">-</div></div></div></div>
+                <div class="sub-t"><i class="fas fa-user-group"></i> Anggota</div>
+                <div class="ag-grid" id="agGrid"></div>
+                <div class="notice"><i class="fas fa-triangle-exclamation"></i><div><strong>Catatan</strong><p>Ketua piket catet yang ga ikut!</p></div></div>
+                <div class="tgs-block">
+                    <div class="tgs-top"><span class="sub-t m0"><i class="fas fa-clipboard-list"></i> Tugas</span><button class="btn-s" onclick="showTI()"><i class="fas fa-plus"></i> Tambah</button></div>
+                    <div class="tgs-input" id="tgsInput"><textarea class="ta" id="tgsTA" placeholder="Masukkan tugas..."></textarea><div class="tgs-btns"><button class="btn-g" onclick="hideTI()">Batal</button><button class="btn-s ok" onclick="saveTgs()"><i class="fas fa-check"></i> Simpan</button></div></div>
+                    <div id="tgsList"></div>
+                    <div class="empty" id="tgsEmpty" style="display:none"><i class="fas fa-inbox"></i><p>Belum ada tugas</p></div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- NAV -->
+    <nav class="bnav">
+        <button class="nb active" onclick="navTo('hero')" data-s="hero"><i class="fas fa-home"></i><span>Home</span><div class="nb-bar"></div></button>
+        <button class="nb" onclick="openSheet('absen')" data-s="absen"><i class="fas fa-clipboard-check"></i><span>Absen</span><div class="nb-bar"></div></button>
+        <button class="nb" onclick="navTo('piket')" data-s="piket"><i class="fas fa-broom"></i><span>Piket</span><div class="nb-bar"></div></button>
+        <button class="nb" onclick="openSheet('settings')" data-s="set"><i class="fas fa-cog"></i><span>Settings</span><div class="nb-bar"></div></button>
+    </nav>
+
+    <!-- POMODORO -->
+    <div class="ov" id="pomoOv" onclick="closeSheet('pomo')"></div>
+    <div class="bsheet" id="pomoSh">
+        <div class="bsh"></div>
+        <div class="bs-h"><h3><i class="fas fa-hourglass-half"></i> Pomodoro</h3><button class="ib" onclick="closeSheet('pomo')"><i class="fas fa-times"></i></button></div>
+        <div class="pomo-ring-w"><svg class="pomo-svg" viewBox="0 0 200 200"><defs><linearGradient id="pg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:var(--p)"/><stop offset="100%" style="stop-color:var(--s)"/></linearGradient></defs><circle class="pr-bg" cx="100" cy="100" r="88"/><circle class="pr-fill" id="prFill" cx="100" cy="100" r="88"/></svg><div class="pomo-time" id="pTime">25:00</div><div class="pomo-lbl" id="pLbl">FOKUS</div></div>
+        <div class="pomo-ctrl"><button class="pc" onclick="pReset()"><i class="fas fa-rotate-left"></i></button><button class="pc pc-main" onclick="pToggle()"><i class="fas fa-play" id="pIco"></i></button><button class="pc" onclick="pSkip()"><i class="fas fa-forward"></i></button></div>
+        <div class="pomo-modes"><button class="pm active" data-m="focus" onclick="pMode('focus')">Fokus 25m</button><button class="pm" data-m="short" onclick="pMode('short')">Istirahat 5m</button><button class="pm" data-m="long" onclick="pMode('long')">Panjang 15m</button></div>
+        <div class="pomo-stats"><div class="pst"><span class="pst-v" id="pSess">0</span><span class="pst-l">Sesi</span></div><div class="pst"><span class="pst-v" id="pMin">0m</span><span class="pst-l">Fokus</span></div></div>
+    </div>
+
+    <!-- RANDOM PICKER -->
+    <div class="ov" id="pickOv" onclick="closeSheet('pick')"></div>
+    <div class="bsheet" id="pickSh">
+        <div class="bsh"></div>
+        <div class="bs-h"><h3><i class="fas fa-dice"></i> Random Picker</h3><button class="ib" onclick="closeSheet('pick')"><i class="fas fa-times"></i></button></div>
+        <div class="pk-slot" id="pkSlot"><div class="pk-ph">Tekan SPIN!</div></div>
+        <div class="pk-result" id="pkResult"><div class="pk-rl">Terpilih!</div><div class="pk-rn" id="pkRN"></div></div>
+        <button class="spin-btn" id="spinBtn" onclick="doSpin()"><i class="fas fa-play"></i> SPIN!</button>
+        <div class="chips"><button class="chip active" data-f="all" onclick="setPF('all')">Semua</button><button class="chip" data-f="cowo" onclick="setPF('cowo')">Cowok</button><button class="chip" data-f="cewe" onclick="setPF('cewe')">Cewek</button></div>
+        <label class="opt-ck"><input type="checkbox" id="pkExcl" checked><span class="ckm"></span>Jangan ulang</label>
+        <div class="sub-t mt12"><i class="fas fa-history"></i> Riwayat</div>
+        <div id="pkHist"><div class="empty-s">Belum ada</div></div>
+        <button class="btn-g full mt8" onclick="clearPH()"><i class="fas fa-trash"></i> Reset</button>
+    </div>
+
+    <!-- BIRTHDAY -->
+    <div class="ov" id="birthOv" onclick="closeSheet('birth')"></div>
+    <div class="bsheet" id="birthSh">
+        <div class="bsh"></div>
+        <div class="bs-h"><h3><i class="fas fa-birthday-cake"></i> Birthday</h3><button class="ib" onclick="closeSheet('birth')"><i class="fas fa-times"></i></button></div>
+        <div class="birth-content" id="birthContent">
+            <div class="birth-hero"><div class="birth-emoji">🎂</div><div class="birth-title">Ulang Tahun Kelas IX-A</div><div class="birth-sub">Belum ada data ulang tahun</div></div>
+            <p class="birth-note">Fitur ini akan menampilkan daftar ulang tahun siswa kelas IX-A. Data bisa ditambahkan di Settings.</p>
+        </div>
+    </div>
+
+    <!-- ══════ NEW ABSEN SYSTEM ══════ -->
+    <div class="ov" id="absenOv" onclick="closeSheet('absen')"></div>
+    <div class="bsheet bsheet-absen" id="absenSh">
+        <div class="bsh"></div>
+        <div class="bs-h">
+            <h3 id="abTitle"><i class="fas fa-clipboard-check"></i> Absensi IX-A</h3>
+            <button class="ib" onclick="closeSheet('absen')"><i class="fas fa-times"></i></button>
+        </div>
+
+        <!-- ABSEN MENU -->
+        <div id="abMenu">
+            <button class="mc" onclick="openAbsenType('kehadiran')"><div class="mc-i" style="--mc:#22c55e"><i class="fas fa-user-check"></i></div><div class="mc-t"><b>Absen Kehadiran</b><small>H / S / I / A</small></div><i class="fas fa-chevron-right mc-a"></i></button>
+            <button class="mc" onclick="openAbsenType('dhuha')"><div class="mc-i" style="--mc:#f59e0b"><i class="fas fa-sun"></i></div><div class="mc-t"><b>Absen Solat Dhuha</b><small>Pisah cowo cewe</small></div><i class="fas fa-chevron-right mc-a"></i></button>
+            <button class="mc" onclick="openAbsenType('keagamaan')"><div class="mc-i" style="--mc:#8b5cf6"><i class="fas fa-mosque"></i></div><div class="mc-t"><b>Absen Keagamaan</b><small>Ikut / Tidak</small></div><i class="fas fa-chevron-right mc-a"></i></button>
+            <button class="mc" onclick="openAbsenType('wajib')"><div class="mc-i" style="--mc:#3b82f6"><i class="fas fa-pray"></i></div><div class="mc-t"><b>Absen Solat Wajib</b><small>Pisah cowo cewe</small></div><i class="fas fa-chevron-right mc-a"></i></button>
+            <button class="mc" onclick="openAbsenType('telat')"><div class="mc-i" style="--mc:#ef4444"><i class="fas fa-clock"></i></div><div class="mc-t"><b>Absen Telat</b><small>Daftar telat</small></div><i class="fas fa-chevron-right mc-a"></i></button>
+        </div>
+
+        <!-- ABSEN DETAIL VIEW -->
+        <div id="abDetail" style="display:none">
+            <div class="ab-top-bar">
+                <button class="ib" onclick="backAbMenu()"><i class="fas fa-arrow-left"></i></button>
+                <h3 id="abDetailTitle">Absen</h3>
+                <div style="width:34px"></div>
+            </div>
+
+            <!-- DATE -->
+            <div class="ab-date-bar" id="abDateBar"></div>
+
+            <!-- SUMMARY CARDS -->
+            <div class="ab-summary" id="abSummary"></div>
+
+            <!-- PROGRESS BAR -->
+            <div class="ab-progress-wrap" id="abProgress"></div>
+
+            <!-- CAPTURE AREA FOR DOWNLOAD -->
+            <div id="abCaptureArea">
+                <div class="ab-capture-header" id="abCaptureHeader" style="display:none">
+                    <div class="ab-ch-icon"><i class="fas fa-clipboard-check"></i></div>
+                    <div class="ab-ch-title" id="abCapTitle">ATTENDANCE REPORT</div>
+                    <div class="ab-ch-sub">Kelas IX-A — Tahun Ajaran 2024/2025</div>
+                    <div class="ab-ch-date" id="abCapDate"></div>
+                </div>
+
+                <!-- TABLE -->
+                <div class="ab-table-wrap" id="abTableWrap"></div>
+
+                <div class="ab-capture-summary" id="abCaptureSummary" style="display:none"></div>
+                <div class="ab-capture-footer" id="abCaptureFooter" style="display:none">
+                    Dibuat otomatis oleh IX-A Smart Attendance System © 2025
+                </div>
+            </div>
+
+            <!-- ACTION BUTTONS -->
+            <div class="ab-actions">
+                <button class="ab-act-btn download" id="abDownBtn" onclick="downloadAbsen()"><i class="fas fa-download"></i> Download</button>
+                <button class="ab-act-btn copy" onclick="copyAbText()"><i class="fas fa-copy"></i> Salin</button>
+                <button class="ab-act-btn wa" onclick="sendAbWA()"><i class="fab fa-whatsapp"></i> WA</button>
+                <button class="ab-act-btn reset" onclick="resetAbsen()"><i class="fas fa-rotate-left"></i> Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="ov" id="settingsOv" onclick="closeSheet('settings')"></div>
+    <div class="bsheet" id="settingsSh">
+        <div class="bsh"></div>
+        <div class="bs-h"><h3><i class="fas fa-cog"></i> Settings</h3><button class="ib" onclick="closeSheet('settings')"><i class="fas fa-times"></i></button></div>
+        <div id="setGate">
+            <div class="gate-ico"><i class="fas fa-lock"></i></div>
+            <p class="gate-t">Masukkan Password</p>
+            <input type="password" class="n-input" id="gatePw" placeholder="••••" maxlength="10">
+            <button class="btn-p" onclick="checkGate()">Buka</button>
+            <p class="gate-err" id="gateErr"><i class="fas fa-circle-exclamation"></i> Salah!</p>
+        </div>
+        <div id="setCont" style="display:none">
+            <div class="ug"><div class="ug-t">Tema Warna</div>
+            <div class="tg" id="tGrid">
+                <button class="to active" data-t="cyber" onclick="setTheme('cyber')"><div class="to-s" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)"></div>Cyber</button>
+                <button class="to" data-t="rose" onclick="setTheme('rose')"><div class="to-s" style="background:linear-gradient(135deg,#ec4899,#f472b6)"></div>Rose</button>
+                <button class="to" data-t="ocean" onclick="setTheme('ocean')"><div class="to-s" style="background:linear-gradient(135deg,#06b6d4,#0891b2)"></div>Ocean</button>
+                <button class="to" data-t="sunset" onclick="setTheme('sunset')"><div class="to-s" style="background:linear-gradient(135deg,#f97316,#ef4444)"></div>Sunset</button>
+                <button class="to" data-t="emerald" onclick="setTheme('emerald')"><div class="to-s" style="background:linear-gradient(135deg,#10b981,#059669)"></div>Emerald</button>
+                <button class="to" data-t="neon" onclick="setTheme('neon')"><div class="to-s" style="background:linear-gradient(135deg,#facc15,#a3e635)"></div>Neon</button>
+            </div></div>
+            <div class="ug"><div class="ug-t">Mode UI</div>
+            <div class="mg">
+                <button class="mo active" data-m="default" onclick="setMode('default')"><i class="fas fa-bolt"></i> Default</button>
+                <button class="mo" data-m="cute" onclick="setMode('cute')"><i class="fas fa-heart"></i> Cute</button>
+                <button class="mo" data-m="minimal" onclick="setMode('minimal')"><i class="fas fa-minus"></i> Minimal</button>
+                <button class="mo" data-m="retro" onclick="setMode('retro')"><i class="fas fa-gamepad"></i> Retro</button>
+            </div></div>
+            <div class="ug"><div class="ug-t">Font</div>
+            <div class="fg">
+                <button class="fo active" data-ff="inter" onclick="setFF('inter')" style="font-family:Inter">Inter</button>
+                <button class="fo" data-ff="poppins" onclick="setFF('poppins')" style="font-family:Poppins">Poppins</button>
+                <button class="fo" data-ff="nunito" onclick="setFF('nunito')" style="font-family:Nunito">Nunito</button>
+                <button class="fo" data-ff="quicksand" onclick="setFF('quicksand')" style="font-family:Quicksand">Quicksand</button>
+                <button class="fo" data-ff="space" onclick="setFF('space')" style="font-family:'Space Grotesk'">Space</button>
+                <button class="fo" data-ff="mono" onclick="setFF('mono')" style="font-family:'JetBrains Mono'">Mono</button>
+            </div></div>
+            <div class="ug"><div class="ug-t">Ukuran</div>
+            <div class="fsr"><button class="fsb" onclick="setFS('small')">A<sup>-</sup></button><button class="fsb active" onclick="setFS('normal')">A</button><button class="fsb" onclick="setFS('large')">A<sup>+</sup></button></div></div>
+            <div class="ug"><div class="ug-t">Visual & Suara</div>
+            <div class="sc">
+                <div class="sr"><span><i class="fas fa-sparkles"></i> Partikel</span><div class="tgl" id="tgP" onclick="tgOpt('particles')"><div class="tgl-t"></div></div></div>
+                <div class="sr"><span><i class="fas fa-barcode"></i> Scanline</span><div class="tgl" id="tgSc" onclick="tgOpt('scanline')"><div class="tgl-t"></div></div></div>
+                <div class="sr"><span><i class="fas fa-border-all"></i> Grid</span><div class="tgl" id="tgG" onclick="tgOpt('grid')"><div class="tgl-t"></div></div></div>
+                <div class="sr"><span><i class="fas fa-volume-up"></i> Suara</span><div class="tgl" id="tgSnd" onclick="tgOpt('sounds')"><div class="tgl-t"></div></div></div>
+                <div class="sr"><span><i class="fas fa-wand-magic-sparkles"></i> Animasi</span><div class="tgl" id="tgAnim" onclick="tgOpt('animations')"><div class="tgl-t"></div></div></div>
+            </div></div>
+            <div class="ug"><div class="ug-t">Gaya Card</div>
+            <div class="mg">
+                <button class="mo active" data-cs="glass" onclick="setCS('glass')"><i class="fas fa-droplet"></i> Glass</button>
+                <button class="mo" data-cs="solid" onclick="setCS('solid')"><i class="fas fa-square"></i> Solid</button>
+                <button class="mo" data-cs="outline" onclick="setCS('outline')"><i class="fas fa-border-top-left"></i> Outline</button>
+                <button class="mo" data-cs="gradient" onclick="setCS('gradient')"><i class="fas fa-fill-drip"></i> Gradient</button>
+            </div></div>
+            <div class="ug"><div class="ug-t">Radius Sudut</div>
+            <div class="fsr">
+                <button class="fsb" onclick="setRadius('sharp')">Sharp</button>
+                <button class="fsb active" onclick="setRadius('round')">Round</button>
+                <button class="fsb" onclick="setRadius('pill')">Pill</button>
+            </div></div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"><i class="fas fa-check-circle"></i> <span id="toastMsg">OK</span></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
